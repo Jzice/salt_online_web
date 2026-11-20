@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b0d0f" />
+    <meta
+      name="description"
+      content="Saltline — cut the port's three uplinks and reach the boat."
+    />
+    <title>Saltline</title>
+    <link rel="icon" href="data:," />
+    <script type="module" crossorigin src="/salt_online_web/assets/index-B811WlrG.js"></script>
+    <link rel="stylesheet" crossorigin href="/salt_online_web/assets/index-CAhsPMDV.css">
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="view" tabindex="0"></canvas>
+      <div id="ui"></div>
+      <div id="boot" data-mode="boot">
+        <div class="boot-scan" aria-hidden="true"></div>
+        <div class="boot-mark">SALTLINE</div>
+        <div class="boot-sub" id="boot-msg">Raising the terminal</div>
+        <div class="boot-hint" id="boot-hint">
+          Waking the renderer · first load takes a few seconds
+        </div>
+        <div class="boot-bar"><i id="boot-fill"></i></div>
+        <nav class="boot-lang" aria-label="Language">
+          <button type="button" data-lang="zh-CN">中文</button>
+          <button type="button" data-lang="en-US">EN</button>
+        </nav>
+      </div>
+    </div>
+    <script>
+      // Instant language bootstrap for the loading screen, before the game bundle
+      // arrives. Mirrors the global i18n default (zh-CN) so the loader never
+      // flashes English on a Chinese session. The language switch itself lives on
+      // the title screen and hot-swaps in place (no page reload).
+      (function () {
+        var KEY = "saltline.lang";
+        function getLang() {
+          try {
+            var s = localStorage.getItem(KEY);
+            if (s === "en-US" || s === "zh-CN") return s;
+          } catch (e) {}
+          return "zh-CN";
+        }
+        var EN = {
+          ".boot-mark": "SALTLINE",
+          "#boot-msg": "Raising the terminal",
+          "#boot-hint": "Waking the renderer · first load takes a few seconds",
+        };
+        var ZH = {
+          ".boot-mark": "盐线行动",
+          "#boot-msg": "正在启动终端",
+          "#boot-hint": "正在唤醒渲染器 · 首次加载需要几秒",
+        };
+        function apply(lang) {
+          var map = lang === "zh-CN" ? ZH : EN;
+          for (var sel in map) {
+            if (!Object.prototype.hasOwnProperty.call(map, sel)) continue;
+            var el = document.querySelector(sel);
+            if (el) el.textContent = map[sel];
+          }
+          document.documentElement.lang = lang;
+          var btns = document.querySelectorAll(".boot-lang [data-lang]");
+          for (var i = 0; i < btns.length; i++) {
+            var on = btns[i].getAttribute("data-lang") === lang;
+            btns[i].classList.toggle("on", on);
+            btns[i].setAttribute("aria-pressed", on ? "true" : "false");
+          }
+        }
+        apply(getLang());
+        var nav = document.querySelector(".boot-lang");
+        if (nav) {
+          nav.addEventListener("click", function (event) {
+            var btn = event.target.closest("[data-lang]");
+            if (!btn) return;
+            var next =
+              btn.getAttribute("data-lang") === "en-US" ? "en-US" : "zh-CN";
+            try {
+              localStorage.setItem(KEY, next);
+            } catch (e) {}
+            apply(next); // in-place hot swap; no page reload
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
